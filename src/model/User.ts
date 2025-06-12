@@ -1,5 +1,5 @@
 import mongoose , {Schema , Document, Types} from "mongoose";
-
+import bcrypt from "bcryptjs";
 export interface Messages extends Document{
     content:string;
     createdAt:Date;
@@ -73,6 +73,17 @@ const userSchema:Schema<User> = new Schema({
 
 const UserModel = (mongoose.models.Users as mongoose.Model<User> ) || (mongoose.model<User>("User",userSchema))
 const MessageModel = (mongoose.models.Messages as mongoose.Model<Messages> ) || (mongoose.model<Messages>("Message",messageSchema))
+
+//Model hooks
+
+
+userSchema.pre('save',async function(next){
+    if(!this.isModified('password')) return next()
+        
+    this.password = await bcrypt.hash(this.password , 10)
+    return next()
+})
+
 
 export {
     UserModel,
